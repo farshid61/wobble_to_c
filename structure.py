@@ -76,7 +76,7 @@ tobacco_biased={
 'R':'AGA',
 'G':'GGU'}
 
-def fasta_to_list(fasta_dir,seq_to_codon=False,separate_aa=False,sos_eos=True): 
+def fasta_to_list(fasta_dir,seq_to_codon=False,separate_aa=False,sos_eos=True,remove_stop=True): 
     """convert FASTA format to a list format of the sequences.
 
     Parameters
@@ -109,12 +109,12 @@ def fasta_to_list(fasta_dir,seq_to_codon=False,separate_aa=False,sos_eos=True):
                     if len(l)==0:
                         seq.append(sub_seq)
         if seq_to_codon:
-            seq=seq_to_cds(seq,codons_separator,sos_eos)
+            seq=seq_to_cds(seq,codons_separator,sos_eos,remove_stop)
         if separate_aa:
             seq=separate_amino_acids(seq)
     return seq
 
-def seq_to_cds(seqs,sep=None,sos_eos=True):
+def seq_to_cds(seqs,sep=None,sos_eos=True,remove_stop=True):
     """seperate nucleotide sequence to codons (triple form).
 
     Parameters
@@ -137,8 +137,9 @@ codons=s.seq_to_cds(cds)
         str_cds=[]
         for pos in range(0,len(seq)-len(seq)%3,3):
             str_cds.append(seq[pos:pos+3])
-        if str_cds[-1] in ("UAA","UAG","UGA","TAA","TAG","TGA"): #remove stop codons
-            del str_cds[-1]
+        if remove_stop:
+            if str_cds[-1] in ("UAA","UAG","UGA","TAA","TAG","TGA"): #remove stop codons
+                del str_cds[-1]
         if sos_eos:
             str_cds.insert(0,'[SOS]')
             str_cds.append('[EOS]')
